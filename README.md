@@ -1,8 +1,9 @@
 # spatialdds-scenescape
 
-Publishes Intel SceneScape's scene analytics as typed SpatialDDS 1.8 samples.
-It runs beside SceneScape as an ordinary MQTT client. It changes nothing in
-SceneScape and never publishes back to it. Stop it and their stack carries on.
+Publishes [Intel SceneScape][ssweb] scene analytics as typed
+[SpatialDDS 1.8][sdweb] samples. It runs beside SceneScape as an ordinary MQTT
+client. It changes nothing in SceneScape and never publishes back to it. Stop
+it and their stack carries on.
 
 ![SceneScape publishes MQTT, the sidecar translates, SpatialDDS comes out](samples/architecture.png)
 
@@ -184,3 +185,5 @@ specification][sd] and keeps its own SPDX headers.
 [sspin]: https://github.com/open-edge-platform/scenescape/commit/91afcb747dc9b9985ccaa036c760f18a71ef19a2
 [sd]: https://github.com/OpenArCloud/SpatialDDS-spec
 [sdpin]: https://github.com/OpenArCloud/SpatialDDS-spec/commit/424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2
+[ssweb]: https://www.intel.com/content/www/us/en/developer/tools/scenescape/overview.html
+[sdweb]: https://spatialdds.org
