@@ -113,8 +113,13 @@ The repository ships a recorded sample and a matching Foxglove layout.
 
 You get raw `FusedTrackSet` and `SpatialEvent` messages, a plot of one
 person's position through the scene, the zone events as a timeline band, and
-the latched zone and crossing line definitions. `samples/render-proof.png`
-shows what it should look like.
+the latched zone and crossing line definitions.
+
+![The sample recording open in Foxglove, with the shipped layout applied](samples/foxglove-screenshot.png)
+
+Every value on that screen is decoded from the file by Foxglove itself, using
+the omgidl schemas the recording carries. Nothing in this repository is
+running.
 
 The sample is 15,584 samples across nine topics from two scenes and four
 cameras, including two zones, one crossing line and 80 zone events. Encoding

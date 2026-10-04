@@ -10,8 +10,15 @@ MCAP, import the layout. The layout is generated from the file by
 `tools/make_foxglove_layout.py` rather than written by hand, so its message
 paths cannot reference a topic or field the file does not contain.
 
+`foxglove-screenshot.png` is the sample open in Foxglove with the layout
+applied. It was taken before the files were renamed for publication, so the
+title bar shows the recording's working name rather than
+`queuing-retail-sample`. The contents are the same file.
+
 `render-proof.png` is the output of `gates/render_check.py` against both,
-showing a decoded value for every panel path.
+showing a decoded value for every panel path. It is a different thing from the
+screenshot: the screenshot is Foxglove, the proof is a headless browser
+asserting that each panel path yields a value.
 
 `scene-config.json` is the scene configuration that was in force when the
 recording was made, as SceneScape's REST API returned it. It is required to
