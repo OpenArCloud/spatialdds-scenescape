@@ -4,11 +4,13 @@ Publishes Intel SceneScape's scene analytics as typed SpatialDDS 1.8 samples.
 It runs beside SceneScape as an ordinary MQTT client. It changes nothing in
 SceneScape and never publishes back to it. Stop it and their stack carries on.
 
-![The sample recording open in Foxglove with the shipped layout](samples/foxglove-screenshot.png)
+![SceneScape publishes MQTT, the sidecar translates, SpatialDDS comes out](samples/architecture.png)
 
-That is the sample in this repository, open in Foxglove. Every value on screen
-was decoded by Foxglove from the schemas the file carries. Nothing from here
-is running.
+Here is what comes out, in Foxglove, from the sample recording in this
+repository. Every value on screen was decoded by Foxglove from the schemas the
+file carries. Nothing from here is running.
+
+![The sample recording open in Foxglove with the shipped layout](samples/foxglove-screenshot.png)
 
 ## Try it in 30 seconds
 
@@ -21,8 +23,6 @@ zones, one crossing line, 80 zone events. CDR with omgidl schemas, so any
 schema aware reader decodes it without code from this repository.
 
 ## How it fits
-
-![SceneScape publishes MQTT, the sidecar translates, SpatialDDS comes out](samples/architecture.png)
 
 The sidecar holds one MQTT subscription and one read-only REST call. The REST
 call cannot be avoided: zone geometry, camera to scene membership and the
