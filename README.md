@@ -43,10 +43,11 @@ TRANSIENT_LOCAL, so a late reader still gets the layout.
 
 ## Status
 
-Built against SceneScape `2026.1.0`, commit
-`91afcb747dc9b9985ccaa036c760f18a71ef19a2`, and SpatialDDS 1.8 at spec commit
-`424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2`. Both are recorded in
-`idl/PROVENANCE` and `spatialdds18/_provenance.py`.
+Built against [Intel SceneScape][ss] `2026.1.0`, commit
+[`91afcb747dc9b9985ccaa036c760f18a71ef19a2`][sspin], and [SpatialDDS 1.8][sd]
+at spec commit
+[`424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2`][sdpin]. Both pins are also
+recorded in `idl/PROVENANCE` and `spatialdds18/_provenance.py`.
 
 Validated by replay. Two recordings totalling 52,861 real MQTT messages were
 translated and reconciled against their inputs. The sample here is the output
@@ -165,16 +166,21 @@ reproduces `spatialdds18/` byte for byte.
 
 ## Credits
 
-Intel SceneScape is the source system. Their release, their demo data and
-their functional tests were used throughout. The worked georeference example
-in their test suite found a real bug in this adapter, which is the best
-argument for shipping test vectors we know of.
+[Intel SceneScape][ss] is the source system. Their release, their demo data
+and their functional tests were used throughout. The worked georeference
+example in their test suite found a real bug in this adapter, which is the
+best argument for shipping test vectors we know of.
 
-SpatialDDS 1.8's observer pose covariance work, including the `CovScope`
+[SpatialDDS][sd] 1.8's observer pose covariance work, including the `CovScope`
 composition guard, came out of review with the SceneScape team. Their fused
 tracks carry observer uncertainty that had nowhere to go in 1.7.
 
 ## Licence
 
-MIT, see `LICENSE`. The IDL under `idl/` comes from the SpatialDDS
-specification and keeps its own SPDX headers.
+MIT, see `LICENSE`. The IDL under `idl/` comes from the [SpatialDDS
+specification][sd] and keeps its own SPDX headers.
+
+[ss]: https://github.com/open-edge-platform/scenescape
+[sspin]: https://github.com/open-edge-platform/scenescape/commit/91afcb747dc9b9985ccaa036c760f18a71ef19a2
+[sd]: https://github.com/OpenArCloud/SpatialDDS-spec
+[sdpin]: https://github.com/OpenArCloud/SpatialDDS-spec/commit/424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2
