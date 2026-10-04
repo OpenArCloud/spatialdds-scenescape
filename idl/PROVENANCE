@@ -1,0 +1,13 @@
+# Where this IDL came from.
+#
+# The SpatialDDS IDL is vendored here so the bindings can be regenerated and
+# the sample recording decoded without a second checkout. It is a copy, not a
+# fork. Upstream is authoritative.
+#
+# tools/generate_bindings.py reads this file to stamp spatialdds18/_provenance.py,
+# so a generated binding tree always names the specification revision it came
+# from rather than the commit of whatever repository it was built in.
+
+repository = https://github.com/OpenArCloud/SpatialDDS-spec
+commit = 424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2
+version = 1.8

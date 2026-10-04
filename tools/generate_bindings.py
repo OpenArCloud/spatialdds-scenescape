@@ -47,7 +47,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SIDECAR = HERE.parent
-DEFAULT_SPEC = SIDECAR.parent / "SpatialDDS-spec"
+# The IDL ships in this repository, so the default needs no sibling
+# checkout. Point --spec at a SpatialDDS-spec clone to generate from a
+# different revision.
+DEFAULT_SPEC = SIDECAR
 DEFAULT_OUT = SIDECAR / "spatialdds18"
 PACKAGE = "spatialdds18"
 
@@ -228,16 +231,36 @@ def generate(spec_idl: Path, out_dir: Path, package: str) -> list[str]:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--spec", type=Path, default=DEFAULT_SPEC,
-                    help="SpatialDDS-spec checkout (default: ../SpatialDDS-spec)")
+                    help="tree containing idl/v1.8 (default: this repository)")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     a = ap.parse_args()
 
     spec_idl = a.spec / "idl" / "v1.8"
     if not spec_idl.is_dir():
         raise SystemExit(f"not found: {spec_idl}")
-    pin = subprocess.run(["git", "-C", str(a.spec), "rev-parse", "HEAD"],
-                         capture_output=True, text=True).stdout.strip()
-    print(f"spec {a.spec}  @ {pin or '(not a git checkout)'}")
+
+    # Which specification revision these bindings came from.
+    #
+    # Read from <spec>/idl/PROVENANCE when the IDL is vendored, because
+    # `git rev-parse` in a vendored tree reports the commit of the repository
+    # holding the copy, not the specification it was copied from. That is a
+    # silent and misleading wrong answer: the point of recording a pin is
+    # being able to trace a binding tree back to the IDL that produced it.
+    # Falls back to git for a real SpatialDDS-spec checkout.
+    pin = ""
+    prov = a.spec / "idl" / "PROVENANCE"
+    if prov.is_file():
+        for line in prov.read_text().splitlines():
+            if line.strip().startswith("commit"):
+                pin = line.split("=", 1)[1].strip()
+                break
+    source = str(prov) if pin else "git"
+    if not pin:
+        r = subprocess.run(["git", "-C", str(a.spec), "rev-parse", "HEAD"],
+                           capture_output=True, text=True)
+        pin = r.stdout.strip() if r.returncode == 0 else ""
+
+    print(f"spec {a.spec}")
     print(f"idl  {spec_idl}")
     fixed = generate(spec_idl, a.out, PACKAGE)
     print(f"out  {a.out}")
@@ -245,7 +268,7 @@ def main() -> int:
         print(f"  patched: {f}")
     (a.out / "_provenance.py").write_text(
         HEADER + f'SPEC_COMMIT = "{pin}"\nSPEC_VERSION = "1.8"\n')
-    print(f"  provenance: SPEC_COMMIT = {pin}")
+    print(f"  provenance: SPEC_COMMIT = {pin}  (from {source})")
     return 0
 
 

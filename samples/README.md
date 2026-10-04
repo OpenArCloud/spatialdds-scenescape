@@ -10,6 +10,8 @@ MCAP, import the layout. The layout is generated from the file by
 `tools/make_foxglove_layout.py` rather than written by hand, so its message
 paths cannot reference a topic or field the file does not contain.
 
+`architecture.png` is the diagram used in the top-level README.
+
 `foxglove-screenshot.png` is the sample open in Foxglove with the layout
 applied. It was taken before the files were renamed for publication, so the
 title bar shows the recording's working name rather than
