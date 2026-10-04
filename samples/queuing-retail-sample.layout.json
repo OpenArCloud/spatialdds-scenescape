@@ -1,0 +1,117 @@
+{
+  "configById": {
+    "RawMessages!tracks": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/tracker/fused_track/v1",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "expansion": "none"
+    },
+    "Plot!position": {
+      "paths": [
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/tracker/fused_track/v1.tracks[:]{track_id==\"eb8d6cca-dc6f-4425-91b8-bc86be817ef3\"}.position[0]",
+          "enabled": true,
+          "label": "x (east, m)",
+          "timestampMethod": "receiveTime"
+        },
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/tracker/fused_track/v1.tracks[:]{track_id==\"eb8d6cca-dc6f-4425-91b8-bc86be817ef3\"}.position[1]",
+          "enabled": true,
+          "label": "y (north, m)",
+          "timestampMethod": "receiveTime"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240
+    },
+    "RawMessages!events": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/events/spatial_event/v1",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "expansion": "all"
+    },
+    "StateTransitions!eventtype": {
+      "paths": [
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/events/spatial_event/v1.type",
+          "timestampMethod": "receiveTime",
+          "label": "event type"
+        },
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/events/spatial_event/v1.zone_occupancy",
+          "timestampMethod": "receiveTime",
+          "label": "occupancy"
+        }
+      ],
+      "isSynced": true
+    },
+    "RawMessages!zones": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/regions/spatial_zone/v1",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "expansion": "all"
+    },
+    "RawMessages!crossing": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/regions/crossing_line/v1",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "expansion": "all"
+    },
+    "Table!dets": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/atag-qcam2/detection2d/v1.dets"
+    }
+  },
+  "globalVariables": {
+    "scene": "302cf49a-97ec-402d-a324-c5077b280b7b",
+    "plotted_track": "eb8d6cca-dc6f-4425-91b8-bc86be817ef3"
+  },
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": {
+      "direction": "column",
+      "first": {
+        "direction": "row",
+        "first": "RawMessages!tracks",
+        "second": "RawMessages!events",
+        "splitPercentage": 50.0
+      },
+      "second": {
+        "direction": "row",
+        "first": "RawMessages!zones",
+        "second": "RawMessages!crossing",
+        "splitPercentage": 50.0
+      },
+      "splitPercentage": 50.0
+    },
+    "second": {
+      "direction": "column",
+      "first": {
+        "direction": "row",
+        "first": "Plot!position",
+        "second": "StateTransitions!eventtype",
+        "splitPercentage": 50.0
+      },
+      "second": "Table!dets",
+      "splitPercentage": 66.7
+    },
+    "splitPercentage": 45
+  }
+}

@@ -1,0 +1,36 @@
+{
+ "_source": "scenescape/regulated/scene/302cf49a-97ec-402d-a324-c5077b280b7b, captured live 2026-10-03T15:0x via a 25 s mosquitto_sub. 631 of 631 objects carried lat_long_alt. These are the first nine distinct samples printed, verbatim.",
+ "_why": "Branch A's strongest check is agreement with the producer's OWN per-object output. Keeping real samples makes that check reproducible without the deployment, and the numbers are theirs rather than ours.",
+ "_scene_state": "output_lla true; map_corners_lla as below; scale 157.0; map scene.png 1200x1140 px; corners generated at 30 deg yaw about (37.38685435, -121.96408120, 8.0).",
+ "scene_config": {
+  "uid": "302cf49a-97ec-402d-a324-c5077b280b7b",
+  "name": "Queuing",
+  "output_lla": true,
+  "map": "scene.png",
+  "scale": 157.0,
+  "map_resolution": [1200, 1140],
+  "map_corners_lla": [
+   [37.38685435, -121.9640812, 8.0],
+   [37.38688878, -121.96400646, 8.0],
+   [37.38694544, -121.96404745, 8.0],
+   [37.38691101, -121.9641222, 8.0]
+  ],
+  "trs_matrix": [
+   [0.8954333106797551, -0.14578055156719028, -0.42062123404630447, -2686136.529872841],
+   [-0.20091977154962543, 0.7107946510203952, -0.6740750812053636, -4304719.699140762],
+   [0.3972473249076909, 0.6881090033463716, 0.607186600632889, 3851598.816748605],
+   [0.0, 0.0, 0.0, 1.0]
+  ]
+ },
+ "samples": [
+  {"translation": [1.085717723, 5.413340699, 0.0], "lat_long_alt": [37.3869014814, -121.9641011475, 8.00001115], "heading": 287.2502566826954},
+  {"translation": [1.02889781, 5.487395167, 0.0], "lat_long_alt": [37.3869018033, -121.9641021212, 8.0000111973], "heading": 287.48782479938063},
+  {"translation": [0.972220098, 5.519934579, 0.0], "lat_long_alt": [37.3869018019, -121.9641028591, 8.0000112311], "heading": 286.8106910073772},
+  {"translation": [0.931037291, 5.544208486, 0.0], "lat_long_alt": [37.3869018058, -121.9641033989, 8.0000112572], "heading": 286.3417828956906},
+  {"translation": [0.883346167, 5.579416525, 0.0], "lat_long_alt": [37.3869018657, -121.9641040641, 8.0000112903], "heading": 285.94430059374383},
+  {"translation": [0.855275685, 5.60748768, 0.0], "lat_long_alt": [37.3869019583, -121.9641044971, 8.0000113108], "heading": 285.8627728429867},
+  {"translation": [0.82667939, 5.638084499, 0.0], "lat_long_alt": [37.3869020682, -121.9641049494, 8.0000113333], "heading": 285.81274943604944},
+  {"translation": [0.798148877, 5.668024643, 0.0], "lat_long_alt": [37.3869021733, -121.9641053975, 8.0000113566], "heading": 285.74091109029223},
+  {"translation": [0.773061769, 5.692400107, 0.0], "lat_long_alt": [37.3869022505, -121.9641057804, 8.0000113764], "heading": 285.61521256384276}
+ ]
+}

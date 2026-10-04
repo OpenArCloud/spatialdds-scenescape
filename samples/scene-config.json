@@ -1,0 +1,108 @@
+[
+ {
+  "uid": "302cf49a-97ec-402d-a324-c5077b280b7b",
+  "name": "Queuing",
+  "output_lla": false,
+  "map": "scene.png",
+  "scale": 157.0,
+  "regions": [
+   {
+    "uid": "821266db-5c13-414b-91e0-7d2d4c2c307a",
+    "name": "Keep-Out Zone",
+    "points": [
+     [
+      2.0,
+      3.6
+     ],
+     [
+      3.1,
+      3.6
+     ],
+     [
+      3.1,
+      4.3
+     ],
+     [
+      2.0,
+      4.3
+     ]
+    ],
+    "height": 2.0,
+    "buffer_size": 0.0,
+    "volumetric": false
+   },
+   {
+    "uid": "ac869071-2efa-47d2-bf77-fa0c7248593e",
+    "name": "Queue Region",
+    "points": [
+     [
+      2.4,
+      5.4
+     ],
+     [
+      3.6,
+      5.4
+     ],
+     [
+      3.6,
+      6.2
+     ],
+     [
+      2.4,
+      6.2
+     ]
+    ],
+    "height": 2.0,
+    "buffer_size": 0.0,
+    "volumetric": false
+   }
+  ],
+  "tripwires": [
+   {
+    "uid": "2047726c-e64a-42f1-be2f-0d166e978847",
+    "name": "Entrance Tripwire",
+    "points": [
+     [
+      1.8,
+      4.8
+     ],
+     [
+      4.2,
+      4.8
+     ]
+    ],
+    "height": 2.0,
+    "scene": "302cf49a-97ec-402d-a324-c5077b280b7b"
+   }
+  ],
+  "cameras": [
+   {
+    "uid": "atag-qcam1",
+    "name": "atag-qcam1"
+   },
+   {
+    "uid": "atag-qcam2",
+    "name": "atag-qcam2"
+   }
+  ]
+ },
+ {
+  "uid": "3bc091c7-e449-46a0-9540-29c499bca18c",
+  "name": "Retail",
+  "output_lla": false,
+  "map": "HazardZoneSceneLarge.png",
+  "scale": 100.0,
+  "regions": [],
+  "tripwires": [],
+  "cameras": [
+   {
+    "uid": "camera1",
+    "name": "camera1"
+   },
+   {
+    "uid": "camera2",
+    "name": "camera2"
+   }
+  ]
+ }
+]

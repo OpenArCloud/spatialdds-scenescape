@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.mcap
+!samples/*.mcap
+*.summary.json
+render_proof/
+node_modules/
