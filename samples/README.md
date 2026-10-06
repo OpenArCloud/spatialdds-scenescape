@@ -22,6 +22,13 @@ showing a decoded value for every panel path. It is a different thing from the
 screenshot: the screenshot is Foxglove, the proof is a headless browser
 asserting that each panel path yields a value.
 
+`queuing-retail-sample.summary.json` is written beside the recording when it
+is cut: per-topic counts, the declared list of input topics that are
+deliberately not translated, and the content digest. `gates/conservation_audit.py`
+reads the declared list from it, so the audit needs this file rather than a
+table baked into the gate: the gate stays independent of the translator, and
+what the translator declares it dropped travels with the recording.
+
 `scene-config.json` is the scene configuration that was in force when the
 recording was made, as SceneScape's REST API returned it. It is required to
 replay the recording, because zone geometry and camera to scene membership

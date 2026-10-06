@@ -3,5 +3,8 @@ __pycache__/
 *.mcap
 !samples/*.mcap
 *.summary.json
+# except the shipped sample's, which the conservation audit reads for
+# its declared-dropped table and which carries the content digest.
+!samples/*.summary.json
 render_proof/
 node_modules/
