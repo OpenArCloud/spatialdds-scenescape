@@ -92,6 +92,19 @@ def gates(corpus: Path | None, tmp: Path) -> list[dict]:
          "cmd": ["gates/route_regress.py", str(corpus),
                  "--scene-config", str(CFG)] if corpus else None,
          "skip": None if corpus else "needs a recorded corpus (--corpus)"},
+        {"name": "owm_golden_vector",
+         "what": "one entity's whole lifecycle, field by field against the raw messages",
+         "cmd": ["gates/owm_golden_vector.py", str(SAMPLE)]},
+        {"name": "owm_lifecycle",
+         "what": "one entity per track lifecycle, and the lane is the slow tier",
+         "cmd": ["gates/owm_lifecycle.py", str(corpus), str(replay),
+                 "--scene-config", str(CFG)] if corpus else None,
+         "skip": None if corpus else "needs a recorded corpus (--corpus)"},
+        {"name": "owm_route_equiv",
+         "what": "replay and the live bridge publish identical owm samples",
+         "cmd": ["gates/owm_route_equiv.py", str(corpus),
+                 "--scene-config", str(CFG)] if corpus else None,
+         "skip": None if corpus else "needs a recorded corpus (--corpus)"},
     ]
 
 

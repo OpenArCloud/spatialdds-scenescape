@@ -88,6 +88,7 @@ def main() -> int:
     zn_topics = by_type.get("spatial::events::SpatialZone", [])
     cl_topics = by_type.get("spatial::events::CrossingLine", [])
     d2_topics = by_type.get("spatial::semantics::Detection2DSet", [])
+    owm_topics = by_type.get("spatial::owm::Entity", [])
     if not ft_topics:
         print("no FusedTrackSet topic in this file", file=sys.stderr)
         return 1
@@ -106,6 +107,7 @@ def main() -> int:
     zn = next((t for t in zn_topics if scene in t), None)
     cl = next((t for t in cl_topics if scene in t), None)
     d2 = next((t for t in d2_topics if scene in t), d2_topics[0] if d2_topics else None)
+    ow = next((t for t in owm_topics if scene in t), None)
 
     # The track to plot. Longest-lived is the obvious criterion and it is the
     # wrong one on its own: the longest-lived track in this recording first
@@ -182,6 +184,20 @@ def main() -> int:
         panels.append(("RawMessages!zones", raw(zn, "all")))
     if cl:
         panels.append(("RawMessages!crossing", raw(cl, "all")))
+    if ow:
+        # The world-model lane. Sparse by design: one sample per lifecycle
+        # change, so a reviewer scrubbing the timeline sees entities appear
+        # and retire rather than a wall of per-frame updates.
+        panels.append(("RawMessages!entities", raw(ow, "all")))
+        panels.append(("StateTransitions!entitystate", {
+            "paths": [
+                {"value": f"{ow}.state", "timestampMethod": "receiveTime",
+                 "label": "lifecycle state"},
+                {"value": f"{ow}.basis", "timestampMethod": "receiveTime",
+                 "label": "basis"},
+            ],
+            "isSynced": True,
+        }))
     if d2:
         panels.append(("Table!dets", {"topicPath": f"{d2}.dets"}))
 

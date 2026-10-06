@@ -2,12 +2,14 @@
  "counts": {
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/regions/spatial_zone/v1": 2,
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/regions/crossing_line/v1": 1,
+  "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/model/entity/v0": 48,
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/tracker/fused_track/v1": 2871,
   "spatialdds/3bc091c7-e449-46a0-9540-29c499bca18c/tracker/fused_track/v1": 3076,
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/atag-qcam2/detection2d/v1": 2380,
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/atag-qcam1/detection2d/v1": 2380,
   "spatialdds/3bc091c7-e449-46a0-9540-29c499bca18c/camera2/detection2d/v1": 2398,
   "spatialdds/3bc091c7-e449-46a0-9540-29c499bca18c/camera1/detection2d/v1": 2396,
+  "spatialdds/3bc091c7-e449-46a0-9540-29c499bca18c/model/entity/v0": 44,
   "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/events/spatial_event/v1": 80
  },
  "stats": {
@@ -19,6 +21,8 @@
   "in:event": 80,
   "in:regulated/scene": 5947,
   "dwell_measurements": 15,
+  "owm:entities_created": 49,
+  "owm:entities_retired": 43,
   "dwell_misses": 0,
   "retirements_detected": 43
  },
@@ -377,6 +381,6 @@
    "typed_home": "owm::Entity (provisional, not published here)"
   }
  ],
- "content_sha256": "b80852d8b9f00f79f8b359f327c82cb147040594cdc84b551c15d2b7ddff1305",
- "messages": 15584
+ "content_sha256": "34cb9775e45820d8b72e533a0db39ffa65c556c3cc444b1e5133509760c4f355",
+ "messages": 15676
 }

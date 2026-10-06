@@ -62,6 +62,23 @@ def geo_anchor(scene: str) -> str:
 
 
 # What the watcher follows, and what the two-pane capture's right-hand pane shows.
+def owm_entity(scene: str) -> str:
+    """`spatial.owm/0.1` Entity, per scene.
+
+    §3.3.1's pattern is `spatialdds/<domain>/<stream>/<type>/<version>`, and
+    the version segment is the profile MAJOR version. `spatial.owm/0.1` has
+    MAJOR 0, so this is `v0`, which also signals honestly that the layout is
+    exempt from the 1.x additive guarantee and may change.
+
+    The module adds no registry rows, so no topic name is defined for it
+    anywhere. This one is invented to match the surrounding conventions and is
+    flagged as a finding; §3.3.1 says the authoritative type is the `type`
+    field in `TopicMeta`, not the topic name, so a wrong guess here is
+    recoverable.
+    """
+    return f"spatialdds/{scene}/model/entity/v0"
+
+
 def all_for_scene(scene: str, cameras: list[str]) -> dict[str, str]:
     # No "announce" row. `discovery/announce` has no publisher in this build:
     # Announce is not among the brief's eight translation bullets and adding it
@@ -87,4 +104,5 @@ def all_for_scene(scene: str, cameras: list[str]) -> dict[str, str]:
     # dry run exists to catch.
     for c in cameras:
         t[f"detection2d:{c}"] = detection2d(scene, c)
+    t["owm_entity"] = owm_entity(scene)
     return t

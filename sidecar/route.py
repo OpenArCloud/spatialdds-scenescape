@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from typing import Any, Iterator
 
-from sidecar import mapping, topics
+from sidecar import mapping, owm, topics
 
 
 def _ns(stamp: Any) -> int:
@@ -38,7 +38,7 @@ class Router:
     """Stateful per-message router. One instance per bridge or replay run."""
 
     def __init__(self, scene_cfgs: dict[str, dict] | None = None,
-                 retention_s: float = 5.0) -> None:
+                 retention_s: float = 5.0, owm_lane: bool = True) -> None:
         self.scene_cfgs = scene_cfgs or {}
         # camera id -> scene uid, from each scene's own `cameras` list as the
         # REST payload returns it. Their `data/camera/<id>` topic does not name
@@ -56,6 +56,13 @@ class Router:
                 if isinstance(cam, dict) and cam.get("name"):
                     self.cam_scene[str(cam["name"])] = sid
         self.unattributed: dict[str, int] = {}
+        # The spatial.owm/0.1 lane. Additive and on by default; off makes the
+        # router byte-identical to Phase 1, which is how the regression gate
+        # proves the lane is additive rather than merely believed to be.
+        self.owm_lane = owm_lane
+        self.owm_live: dict[str, str] = {}      # entity_id -> track key seen
+        self.owm_created = 0
+        self.owm_retired = 0
         self.dwell: dict[tuple[str, str], float] = {}
         self.retire = mapping.TrackRetirement(retention_s=retention_s)
         self.seq: dict[str, int] = {}
@@ -108,9 +115,13 @@ class Router:
             sid = parts[3]
             self.seq[sid] = self.seq.get(sid, 0) + 1
             fts = mapping.fused_track_set(payload, sid, self.seq[sid])
-            self.retirements += self.retire.observe(sid, payload)
+            gone = self.retire.observe(sid, payload)
+            self.retirements += gone
             self._bump("regulated/scene")
-            return [(topics.fused_track(sid), fts, _ns(fts.stamp))]
+            out = [(topics.fused_track(sid), fts, _ns(fts.stamp))]
+            if self.owm_lane:
+                out += self._owm_lifecycle(sid, payload, gone)
+            return out
 
         if kind == "data" and len(parts) >= 4 and parts[2] == "camera":
             cam = parts[3]
@@ -147,6 +158,63 @@ class Router:
             return [(topics.spatial_event(sid), ev, _ns(ev.stamp))]
 
         return []
+
+    # -- the owm lane -------------------------------------------------------
+
+    def _owm_lifecycle(self, scene_id: str, payload: dict[str, Any],
+                       gone: list[dict[str, Any]]) -> list[tuple[str, Any, int]]:
+        """Entity samples for lifecycle changes in one regulated/scene frame.
+
+        State change only. A track already known produces nothing, which is
+        what makes this the slow tier: over the reference corpus it is 90
+        samples against 5,947 on the semantics lane.
+        """
+        cfg = self.scene_cfgs.get(scene_id, {})
+        name = cfg.get("name")
+        stamp_iso = payload.get("timestamp")
+        out: list[tuple[str, Any, int]] = []
+        topic = topics.owm_entity(scene_id)
+
+        for o_ in (payload.get("objects") or []):
+            tid = str(o_.get("id") or "")
+            if not tid:
+                continue
+            eid = owm.entity_id_for_track(scene_id, tid)
+            if eid in self.owm_live:
+                continue
+            self.owm_live[eid] = tid
+            ent = owm.entity_for_track(o_, scene_id, name, stamp_iso)
+            self.owm_created += 1
+            out.append((topic, ent, _ns(ent.stamp)))
+
+        for r in gone:
+            eid = owm.entity_id_for_track(str(r.get("scene_id") or ""),
+                                          str(r.get("track_id") or ""))
+            if eid not in self.owm_live:
+                continue
+            del self.owm_live[eid]
+            ent = owm.retire_entity(r, name, stamp_iso)
+            self.owm_retired += 1
+            out.append((topic, ent, _ns(ent.stamp)))
+        return out
+
+    def owm_definitions(self, scene_id: str, stamp_iso: str | None,
+                        stamp_ns: int) -> list[tuple[str, Any, int]]:
+        """Declared region entities, published once with the other latched set.
+
+        Regions only. Tripwires get no entity: a line is not an area, 0.1 has
+        no line shape and no footprint reference, and a box around a line
+        would assert an area nobody drew.
+        """
+        if not self.owm_lane:
+            return []
+        cfg = self.scene_cfgs.get(scene_id, {})
+        out = []
+        for r in (cfg.get("regions") or []):
+            ent = owm.entity_for_region(r, scene_id, cfg.get("name"), stamp_iso)
+            self.owm_created += 1
+            out.append((topics.owm_entity(scene_id), ent, stamp_ns))
+        return out
 
     # -- helpers ------------------------------------------------------------
 

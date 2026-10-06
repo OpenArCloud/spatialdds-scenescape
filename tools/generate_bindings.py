@@ -62,12 +62,19 @@ HEADER = (
 
 def run_idlc(spec_idl: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    files = sorted(p for p in spec_idl.glob("*.idl"))
+    # The stable profiles, plus the provisional modules one directory down.
+    # Provisional modules are independently versioned and exempt from the 1.x
+    # additive guarantee, so they are compiled from the same pinned tree but
+    # named separately in idl/PROVENANCE by content digest: a recording made
+    # against spatial.owm/0.1 has to be able to say which 0.1 it meant.
+    files = sorted(spec_idl.glob("*.idl"))
+    files += sorted((spec_idl / "provisional").glob("*.idl"))
     if not files:
         raise SystemExit(f"no .idl files in {spec_idl}")
     for f in files:
         r = subprocess.run(
-            ["idlc", "-l", "py", "-I", str(spec_idl), str(f)],
+            ["idlc", "-l", "py", "-I", str(spec_idl),
+             "-I", str(spec_idl / "provisional"), str(f)],
             cwd=out_dir, capture_output=True, text=True)
         if r.returncode != 0:
             raise SystemExit(f"idlc failed on {f.name}:\n{r.stderr}")

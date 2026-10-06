@@ -56,7 +56,10 @@ QOS_LIVE = Qos(Policy.Reliability.Reliable(duration(seconds=1)),
                Policy.Durability.Volatile,
                Policy.History.KeepLast(16))
 
-LATCHED_TYPES = {"SpatialZone", "CrossingLine", "GeoAnchor", "FrameTransform"}
+# Entity is RELIABLE + TRANSIENT_LOCAL, KEEP_LAST(1) per key, as the module
+# specifies, so a late joiner is handed each entity's current rest state.
+LATCHED_TYPES = {"SpatialZone", "CrossingLine", "GeoAnchor", "FrameTransform",
+                 "Entity"}
 
 
 class Writers:
@@ -116,6 +119,11 @@ def main() -> int:
     latched = 0
     for sid in sorted(cfgs):
         for topic_name, sample, _ in router.definitions(sid, now_iso, now_ns):
+            writers.get(topic_name, sample).write(sample)
+            if rec:
+                rec.write(topic_name, sample, now_ns)
+            latched += 1
+        for topic_name, sample, _ in router.owm_definitions(sid, now_iso, now_ns):
             writers.get(topic_name, sample).write(sample)
             if rec:
                 rec.write(topic_name, sample, now_ns)

@@ -12,6 +12,7 @@ from . import core
 from . import disco
 from . import events
 from . import mapping
+from . import owm
 from . import semantics
 from . import sensing
 from . import slam_frontend
@@ -24,6 +25,7 @@ __all__ = [
 	"disco",
 	"events",
 	"mapping",
+	"owm",
 	"semantics",
 	"sensing",
 	"slam_frontend",

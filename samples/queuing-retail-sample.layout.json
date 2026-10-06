@@ -71,6 +71,29 @@
       "showFullMessageForDiff": false,
       "expansion": "all"
     },
+    "RawMessages!entities": {
+      "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/model/entity/v0",
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "expansion": "all"
+    },
+    "StateTransitions!entitystate": {
+      "paths": [
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/model/entity/v0.state",
+          "timestampMethod": "receiveTime",
+          "label": "lifecycle state"
+        },
+        {
+          "value": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/model/entity/v0.basis",
+          "timestampMethod": "receiveTime",
+          "label": "basis"
+        }
+      ],
+      "isSynced": true
+    },
     "Table!dets": {
       "topicPath": "spatialdds/302cf49a-97ec-402d-a324-c5077b280b7b/atag-qcam2/detection2d/v1.dets"
     }
@@ -89,17 +112,22 @@
       "direction": "column",
       "first": {
         "direction": "row",
-        "first": "RawMessages!tracks",
-        "second": "RawMessages!events",
-        "splitPercentage": 50.0
+        "first": {
+          "direction": "column",
+          "first": "RawMessages!tracks",
+          "second": "RawMessages!events",
+          "splitPercentage": 50.0
+        },
+        "second": "RawMessages!zones",
+        "splitPercentage": 66.7
       },
       "second": {
         "direction": "row",
-        "first": "RawMessages!zones",
-        "second": "RawMessages!crossing",
+        "first": "RawMessages!crossing",
+        "second": "RawMessages!entities",
         "splitPercentage": 50.0
       },
-      "splitPercentage": 50.0
+      "splitPercentage": 60.0
     },
     "second": {
       "direction": "column",
@@ -109,8 +137,13 @@
         "second": "StateTransitions!eventtype",
         "splitPercentage": 50.0
       },
-      "second": "Table!dets",
-      "splitPercentage": 66.7
+      "second": {
+        "direction": "row",
+        "first": "StateTransitions!entitystate",
+        "second": "Table!dets",
+        "splitPercentage": 50.0
+      },
+      "splitPercentage": 50.0
     },
     "splitPercentage": 45
   }

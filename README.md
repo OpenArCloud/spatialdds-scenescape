@@ -42,6 +42,42 @@ publishes nothing at all, so listening can never tell you it exists.
 Zones, lines, anchors and transforms are latched: published once, RELIABLE and
 TRANSIENT_LOCAL, so a late reader still gets the layout.
 
+## The world model lane
+
+The sidecar also publishes SceneScape's state as `spatial.owm/0.1` entities, a
+provisional module that is independently versioned and exempt from the 1.x
+additive guarantee. The lane is additive: with it switched off the other lanes
+are byte-identical, which a gate checks rather than a comment claims.
+
+| SceneScape | `owm::Entity` |
+|---|---|
+| a fused track appears | basis `OBSERVED`, state `ACTIVE`, pose from the first sighting |
+| a fused track leaves | state `RETIRED` with the reason, then dispose per §2.14 |
+| a configured region | basis `DECLARED`, extent, and a `footprint_zone_id` property naming its `SpatialZone` |
+
+**It is the slow tier.** Entities are published on lifecycle change, not per
+frame. Over the sample recording that is 92 entity samples against 15,584 on
+the other lanes, one in 169. Per-frame pose stays on `FusedTrackSet`, which
+already carries it with covariance and track provenance. `ModelPose` is
+therefore not published at all: two writers describing one physical thing is
+what Appendix M.2 forbids.
+
+Tripwires get no entity. A `CrossingLine` is not an area, 0.1 has no line
+shape, and a box drawn around a line asserts an area nobody drew.
+
+The module is provisional and this adapter is its second independent
+implementation, so the point of the lane is as much what it could not express
+as what it could. `FINDINGS.md` carries the coverage census, every surface
+marked exercised or not with the reason, and seven findings against the module
+itself. The headline one: an area entity has no field that can reference its
+own footprint, so the join to `SpatialZone` is carried as a declared property
+pending a module decision.
+
+Because the module's layout may change incompatibly between revisions, its IDL
+is vendored and pinned by content digest in `idl/PROVENANCE`, and the recording
+embeds it. `v0` in the topic name is the profile MAJOR version, not a
+compatibility promise.
+
 ## Status
 
 Built against [Intel SceneScape][ss] `2026.1.0`, commit
@@ -123,14 +159,19 @@ $ python3 gates/run_all.py
                                needs a recorded corpus (--corpus)
   SKIPPED  route_regress       four past defects stay fixed
                                needs a recorded corpus (--corpus)
+  PASS     owm_golden_vector   one entity's whole lifecycle, field by field against the raw messages
+  SKIPPED  owm_lifecycle       one entity per track lifecycle, and the lane is the slow tier
+                               needs a recorded corpus (--corpus)
+  SKIPPED  owm_route_equiv     replay and the live bridge publish identical owm samples
+                               needs a recorded corpus (--corpus)
 
-10 gates: 6 passed, 0 failed, 4 skipped
+13 gates: 7 passed, 0 failed, 6 skipped
 ```
 
-Six run on the shipped sample with no deployment at all. The other four
+Seven run on the shipped sample with no deployment at all. The other six
 compare output against the input it came from, so they need a recording:
-`python3 gates/run_all.py --corpus <dir>` runs all ten and prints
-`10 gates: 10 passed, 0 failed, 0 skipped`.
+`python3 gates/run_all.py --corpus <dir>` runs all thirteen and prints
+`13 gates: 13 passed, 0 failed, 0 skipped`.
 
 That manifest is the verification claim rather than a sentence written beside
 one. A gate that cannot run says so by name, instead of being quietly missing

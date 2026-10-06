@@ -11,3 +11,12 @@
 repository = https://github.com/OpenArCloud/SpatialDDS-spec
 commit = 424a8b3d8e0c3fab24c32de9fa146f8b9180a8f2
 version = 1.8
+
+# Provisional module, independently versioned and NOT covered by the 1.x
+# additive guarantee. Vendored and pinned by content digest because its
+# layout may change incompatibly between revisions, so a recording made
+# against it must name exactly which revision it was made against.
+
+provisional.owm.module_id = spatial.owm/0.1
+provisional.owm.file = idl/v1.8/provisional/owm.idl
+provisional.owm.sha256 = 8918b1910fa6fc570eab04c66b05c7ca52732203473da52f4f6278f677e75978

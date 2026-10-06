@@ -39,6 +39,12 @@ _IDL_FOR_MODULE = {
     "spatial.events": "events.idl",
     "spatial.disco": "discovery.idl",
     "builtin": "types.idl",
+    # Provisional module, one directory down. It is vendored and pinned by
+    # content digest in idl/PROVENANCE because spatial.owm/0.1 is exempt from
+    # the 1.x additive guarantee and may change incompatibly, so a recording
+    # has to carry the exact revision it was made against rather than a
+    # version number that means less than it looks.
+    "spatial.owm": "provisional/owm.idl",
 }
 
 

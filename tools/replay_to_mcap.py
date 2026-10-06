@@ -182,6 +182,12 @@ def main() -> int:
             for dds_topic, sample, ns in router.definitions(
                     sid, corpus_start_iso, corpus_start_ns or 0):
                 m.write(dds_topic, sample, ns)
+            # Declared region entities, latched alongside the zones they
+            # point at, so a reader gets the entity and its footprint in the
+            # same breath.
+            for dds_topic, sample, ns in router.owm_definitions(
+                    sid, corpus_start_iso, corpus_start_ns or 0):
+                m.write(dds_topic, sample, ns)
 
         # The live lanes, in arrival order.
         for _, topic, payload in msgs:
@@ -194,6 +200,8 @@ def main() -> int:
     for k, v in sorted(router.counts.items()):
         stats[f"in:{k}"] = v
     stats["dwell_measurements"] = len(router.dwell)
+    stats["owm:entities_created"] = router.owm_created
+    stats["owm:entities_retired"] = router.owm_retired
     stats["dwell_misses"] = router.dwell_misses
     if router.unattributed:
         stats["cameras_unattributed"] = sum(router.unattributed.values())
