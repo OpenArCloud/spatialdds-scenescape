@@ -105,6 +105,9 @@ def gates(corpus: Path | None, tmp: Path) -> list[dict]:
          "cmd": ["gates/owm_route_equiv.py", str(corpus),
                  "--scene-config", str(CFG)] if corpus else None,
          "skip": None if corpus else "needs a recorded corpus (--corpus)"},
+        {"name": "readme_manifest",
+         "what": "the README quotes this manifest exactly",
+         "cmd": ["gates/readme_manifest.py"]},
     ]
 
 
@@ -115,6 +118,14 @@ def main() -> int:
                          "corpus-dependent gates report SKIPPED")
     ap.add_argument("--keep", action="store_true",
                     help="keep the scratch directory")
+    # readme_manifest runs this script to get the manifest it compares the
+    # README against, and this script runs readme_manifest. The cycle is cut
+    # here rather than by leaving the gate out of the list: with this flag the
+    # readme row is rendered as it would read on a passing run, and nothing is
+    # executed for it. If the README is in fact wrong, readme_manifest itself
+    # fails, and a normal run of this script fails with it.
+    ap.add_argument("--assume-readme-pass", action="store_true",
+                    help=argparse.SUPPRESS)
     a = ap.parse_args()
 
     if a.corpus and not a.corpus.is_dir():
@@ -139,6 +150,9 @@ def main() -> int:
 
     rows = []
     for g in gates(a.corpus, tmp):
+        if g["name"] == "readme_manifest" and a.assume_readme_pass:
+            rows.append((g["name"], "PASS", "", g["what"]))
+            continue
         if g.get("skip"):
             rows.append((g["name"], "SKIPPED", g["skip"], g["what"]))
             continue

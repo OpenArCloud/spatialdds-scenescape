@@ -164,18 +164,21 @@ $ python3 gates/run_all.py
                                needs a recorded corpus (--corpus)
   SKIPPED  owm_route_equiv     replay and the live bridge publish identical owm samples
                                needs a recorded corpus (--corpus)
+  PASS     readme_manifest     the README quotes this manifest exactly
 
-13 gates: 7 passed, 0 failed, 6 skipped
+14 gates: 8 passed, 0 failed, 6 skipped
 ```
 
-Seven run on the shipped sample with no deployment at all. The other six
+Eight run on the shipped sample with no deployment at all. The other six
 compare output against the input it came from, so they need a recording:
-`python3 gates/run_all.py --corpus <dir>` runs all thirteen and prints
-`13 gates: 13 passed, 0 failed, 0 skipped`.
+`python3 gates/run_all.py --corpus <dir>` runs all fourteen and prints
+`14 gates: 14 passed, 0 failed, 0 skipped`.
 
 That manifest is the verification claim rather than a sentence written beside
 one. A gate that cannot run says so by name, instead of being quietly missing
-from a count, which is how two of these stayed broken for a fortnight.
+from a count, which is how two of these stayed broken for a fortnight. The
+last row checks that this block is what the runner actually prints, so the
+quote cannot drift from the thing it quotes.
 
 Individually:
 
