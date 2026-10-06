@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def run_once(corpus: Path, out: Path, scene_config: Path | None) -> None:
-    cmd = [sys.executable, str(ROOT / "sc4" / "replay_to_mcap.py"),
+    cmd = [sys.executable, str(ROOT / "tools" / "replay_to_mcap.py"),
            str(corpus), "--out", str(out), "--label", "determinism"]
     if scene_config:
         cmd += ["--scene-config", str(scene_config)]

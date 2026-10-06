@@ -24,6 +24,7 @@ raised about their two stages (census §2, CovScope annotation).
 """
 from __future__ import annotations
 
+import calendar as _calendar
 import datetime as _dt
 import math
 from typing import Any
@@ -81,7 +82,33 @@ def mat3x3_absent() -> list[float]:
 
 
 def parse_iso(ts: str | None) -> Time:
-    """SceneScape stamps are ISO-8601 with a trailing Z."""
+    """SceneScape stamps are ISO-8601 with a trailing Z.
+
+    No float anywhere in the path, and that is the whole point of the
+    function. The first version went through `datetime.timestamp()`, which
+    returns a float64. Near 1.79e9 seconds a float64's resolution is about
+    440 ns, so the fractional second cannot survive the trip:
+
+        "2026-10-03T05:09:47.277Z"
+        producer states   sec=1791004187  nanosec=277000000
+        the old parser    sec=1791004187  nanosec=276999950
+
+    Measured over the v2 corpus, 15,522 of 15,581 stamps came out wrong, a
+    median of 59 ns and a maximum of 118 ns off, on every lane. Small, but it
+    meant the published stamp was not the producer's stamp, which is the one
+    thing a recording of someone else's system has to get right.
+
+    Integer seconds come from `calendar.timegm`, which is UTC by definition.
+    `time.mktime` would be the same call in local time and would be wrong by
+    the machine's offset, silently and only for people not on UTC.
+    Nanoseconds come from `microsecond * 1000`, exact for the millisecond
+    stamps SceneScape emits and for anything else up to microsecond
+    resolution.
+
+    A stamp without a zone is read as UTC. SceneScape always sends `Z`; this
+    says what happens if that ever changes rather than leaving it to
+    `utctimetuple`'s default.
+    """
     if not ts:
         return Time(sec=0, nanosec=0)
     s = ts.replace("Z", "+00:00")
@@ -89,8 +116,10 @@ def parse_iso(ts: str | None) -> Time:
         d = _dt.datetime.fromisoformat(s)
     except ValueError:
         return Time(sec=0, nanosec=0)
-    epoch = d.timestamp()
-    return Time(sec=int(epoch), nanosec=int(round((epoch - int(epoch)) * 1e9)))
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=_dt.timezone.utc)
+    return Time(sec=_calendar.timegm(d.utctimetuple()),
+                nanosec=d.microsecond * 1000)
 
 
 def frame_ref_for_scene(scene_id: str, scene_name: str | None = None,

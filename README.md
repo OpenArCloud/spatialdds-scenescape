@@ -126,8 +126,8 @@ PYTHONPATH=. python3 gates/render_check.py \
 | `layout_check` | every path in the Foxglove layout resolves against the file |
 | `render_check` | a headless browser decodes the file with Foxglove's own libraries and renders all nine panel paths |
 
-Three more need a recording rather than an MCAP, because they reconcile output
-against input. Make one with `tools/record_corpus.sh`, then:
+Four more need a recording rather than an MCAP, because they compare output
+against the input it came from. Make one with `tools/record_corpus.sh`, then:
 
 ```sh
 PYTHONPATH=. python3 tools/replay_to_mcap.py <corpus-dir> \
@@ -137,6 +137,7 @@ PYTHONPATH=. python3 gates/determinism.py <corpus-dir> \
     --scene-config samples/scene-config.json
 PYTHONPATH=. python3 gates/route_regress.py <corpus-dir> \
     --scene-config samples/scene-config.json
+PYTHONPATH=. python3 gates/stamp_fidelity.py <corpus-dir> <corpus-dir>/replay.mcap
 ```
 
 | gate | what it shows |
@@ -144,6 +145,7 @@ PYTHONPATH=. python3 gates/route_regress.py <corpus-dir> \
 | `conservation_audit` | every input topic accounted for, every one to one mapping exact. Imports neither the translator nor the bindings, so the count is independent |
 | `determinism` | two replays of the same input give byte identical content |
 | `route_regress` | four past defects stay fixed: camera to scene attribution, dwell read from the event rather than joined, per scene sequence numbers, and the exit event payload shape |
+| `stamp_fidelity` | every published `sec`/`nanosec` pair is exactly a timestamp the producer sent, compared against its own ISO strings |
 
 `render_check` drives Foxglove's `@mcap/core`, `@foxglove/omgidl-parser` and
 `@foxglove/omgidl-serialization` in headless Chromium. It is not the Foxglove
