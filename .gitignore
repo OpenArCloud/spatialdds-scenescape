@@ -3,8 +3,10 @@ __pycache__/
 *.mcap
 !samples/*.mcap
 *.summary.json
-# except the shipped sample's, which the conservation audit reads for
-# its declared-dropped table and which carries the content digest.
+# Keep the shipped sample's. Do not re-widen this: gates/conservation_audit.py
+# reads its declared-dropped table from the summary beside the recording, and
+# with the file ignored a fresh clone has no declarations, so the audit reports
+# every deliberately-dropped input topic as unexplained. That happened once.
 !samples/*.summary.json
 render_proof/
 node_modules/

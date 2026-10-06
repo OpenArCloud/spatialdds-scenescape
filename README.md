@@ -103,19 +103,40 @@ The render gate also wants Node and Playwright, and skips cleanly without them.
 
 ## Evidence
 
-These produced the numbers above. Six run on the shipped sample, no deployment
-needed:
+These produced the numbers above. One runner executes all of them and reports
+what happened to each, including the ones it could not run:
 
-```sh
-PYTHONPATH=. python3 gates/bindings_roundtrip.py
-PYTHONPATH=. python3 gates/golden_vector.py
-PYTHONPATH=. python3 gates/golden_point.py --recorded
-PYTHONPATH=. python3 gates/schema_check.py samples/queuing-retail-sample.mcap
-PYTHONPATH=. python3 gates/layout_check.py \
-    samples/queuing-retail-sample.layout.json samples/queuing-retail-sample.mcap
-PYTHONPATH=. python3 gates/render_check.py \
-    samples/queuing-retail-sample.mcap samples/queuing-retail-sample.layout.json
 ```
+$ python3 gates/run_all.py
+
+  PASS     bindings_roundtrip  every generated struct imports and round-trips CDR
+  PASS     golden_vector       georeference against the producer's published worked example
+  PASS     golden_point        georeference against the producer's live per-object output
+  PASS     schema_check        embedded schemas are self-contained and every channel decodes
+  PASS     layout_check        every Foxglove layout path resolves against the recording
+  PASS     render_check        a headless browser renders a value for every panel path
+  SKIPPED  stamp_fidelity      published timestamps are exactly the producer's timestamps
+                               needs a recorded corpus (--corpus)
+  SKIPPED  conservation_audit  every input topic accounted for, every 1:1 mapping exact
+                               needs a recorded corpus (--corpus)
+  SKIPPED  determinism         two replays of one input give byte-identical content
+                               needs a recorded corpus (--corpus)
+  SKIPPED  route_regress       four past defects stay fixed
+                               needs a recorded corpus (--corpus)
+
+10 gates: 6 passed, 0 failed, 4 skipped
+```
+
+Six run on the shipped sample with no deployment at all. The other four
+compare output against the input it came from, so they need a recording:
+`python3 gates/run_all.py --corpus <dir>` runs all ten and prints
+`10 gates: 10 passed, 0 failed, 0 skipped`.
+
+That manifest is the verification claim rather than a sentence written beside
+one. A gate that cannot run says so by name, instead of being quietly missing
+from a count, which is how two of these stayed broken for a fortnight.
+
+Individually:
 
 | gate | what it shows |
 |---|---|
@@ -157,6 +178,7 @@ where the failures were.
 
 ```
 sidecar/        router, mapping, bridge, MCAP writer, watcher
+FINDINGS.md     what this adapter learned, our defects included
 spatialdds18/   generated bindings, with the spec commit recorded
 idl/v1.8/       the IDL they came from, and its PROVENANCE
 tools/          recording, replay, scene config, layout generation
