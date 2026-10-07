@@ -9,8 +9,9 @@ but the *mapping* must not, or the thing we validated in replay is not the
 thing we publish live.
 
 So the per-message mapping lives here, called once per arriving message and
-order-independent, and `an earlier equivalence gate (superseded)` asserts that routing a corpus
-through this module yields byte-identical samples to the replay's own calls.
+order-independent. `gates/owm_route_equiv.py` asserts the consequence: the
+same records routed topic by topic and interleaved yield byte-identical
+samples.
 
 There is **no** live/replay asymmetry, and the earlier claim that there was one
 was a symptom of a bug rather than a fact about the data. It said

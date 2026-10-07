@@ -1,0 +1,40 @@
+[
+ {
+  "uid": "302cf49a-97ec-402d-a324-c5077b280b7b",
+  "name": "Queuing",
+  "output_lla": false,
+  "map": "scene.png",
+  "scale": 157.0,
+  "regions": [],
+  "tripwires": [],
+  "cameras": [
+   {
+    "uid": "atag-qcam1",
+    "name": "atag-qcam1"
+   },
+   {
+    "uid": "atag-qcam2",
+    "name": "atag-qcam2"
+   }
+  ]
+ },
+ {
+  "uid": "3bc091c7-e449-46a0-9540-29c499bca18c",
+  "name": "Retail",
+  "output_lla": false,
+  "map": "HazardZoneSceneLarge.png",
+  "scale": 100.0,
+  "regions": [],
+  "tripwires": [],
+  "cameras": [
+   {
+    "uid": "camera1",
+    "name": "camera1"
+   },
+   {
+    "uid": "camera2",
+    "name": "camera2"
+   }
+  ]
+ }
+]

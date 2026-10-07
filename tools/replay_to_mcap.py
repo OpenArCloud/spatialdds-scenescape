@@ -106,8 +106,21 @@ def main() -> int:
     if a.scene_config and a.scene_config.is_file():
         cfg = json.loads(a.scene_config.read_text())
         for c in (cfg if isinstance(cfg, list) else [cfg]):
-            if c.get("uid"):
+            if isinstance(c, dict) and c.get("uid"):
                 scene_cfgs[c["uid"]] = c
+        # A config file that parses but configures nothing is worse than a
+        # missing one: without scenes there are no zones, no georeference and
+        # no camera-to-scene map, so every definition is absent and every
+        # camera detection is dropped as unattributed -- and the replay still
+        # exits 0 with a smaller file. That happened once, to a config written
+        # with a {"scenes": [...]} wrapper this loader does not read. Fail
+        # instead.
+        if not scene_cfgs:
+            raise SystemExit(
+                f"{a.scene_config} parsed but yielded no scenes: expected a "
+                f"JSON array of scene objects, each with a 'uid'. Replaying "
+                f"with no scene configuration would silently drop every "
+                f"latched definition and every camera detection.")
 
     print(f"corpus {a.corpus}")
     print(f"mcap   {out}")
@@ -144,7 +157,7 @@ def main() -> int:
     # messages in **arrival order**. It used to walk topic by topic with its
     # own inline logic, and that cost three real defects which only surfaced
     # once a second implementation existed to disagree with it
-    # (`an earlier equivalence gate (superseded)`):
+    # (the equivalence check now lives in `gates/owm_route_equiv.py`):
     #
     #   1. `data/camera` has no scene in its topic, and the old code picked
     #      `sorted(scenes)[0]` for every camera. That put Retail's `camera1`

@@ -2,7 +2,7 @@
 """Regression gate for the four defects the live/replay split exposed.
 
 History, because it explains the shape of this file. The replay path and the
-live path were written separately, and `an earlier equivalence gate (superseded)` existed briefly to
+live path were written separately, and an equivalence check was written to
 assert they produced byte-identical samples. It immediately failed, and every
 cause was a defect in replay rather than a divergence:
 

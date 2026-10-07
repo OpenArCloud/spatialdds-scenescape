@@ -18,9 +18,15 @@ reads on a passing run without executing anything for it. Nothing is faked by
 that: if the README is wrong, this gate fails on its own, and a normal run of
 the runner fails with it, because the runner invokes this gate for real.
 
-The comparison deliberately uses the no-corpus manifest. It is the one every
-reader can reproduce from a clean clone with nothing but the repository, which
-makes it the right thing for a README to promise.
+**On the corpus.** The comparison deliberately uses the no-corpus manifest,
+which is why both the README and this gate name `--no-corpus` explicitly. It
+is the manifest every reader can reproduce from a clean clone with nothing but
+the repository, which makes it the right thing for a README to promise. The
+flag has to be explicit now that the runner finds a restored corpus beside the
+checkout on its own: without it this gate would compare the README against a
+fourteen-pass run on the maintainer's machine and fail for everyone who has
+the corpora, which is the one group whose setup is not what the README
+describes.
 
 Usage:  gates/readme_manifest.py [--readme FILE]
 """
@@ -34,7 +40,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MARKER = "$ python3 gates/run_all.py"
+MARKER = "$ python3 gates/run_all.py --no-corpus"
 
 
 def quoted_block(readme: str) -> list[str] | None:
@@ -63,7 +69,7 @@ def main() -> int:
 
     r = subprocess.run(
         [sys.executable, str(ROOT / "gates" / "run_all.py"),
-         "--assume-readme-pass"],
+         "--no-corpus", "--assume-readme-pass"],
         cwd=ROOT, env=dict(os.environ, PYTHONPATH=str(ROOT)),
         capture_output=True, text=True)
     if r.returncode not in (0, 1):

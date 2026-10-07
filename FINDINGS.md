@@ -33,7 +33,8 @@ however many gates are green.
 
 ### A verification claim is an output, and an output needs a producer
 
-The same lesson one level up. Three of the ten gates cannot run on the shipped
+The same lesson one level up. Three of the ten gates then in the repository
+could not run on the shipped
 sample, because they compare output against the recorded input it came from
 and the sample is an output. The README said so plainly, and the clean-clone
 verification then exercised seven gates and was reported as though it had
@@ -56,6 +57,52 @@ The sentence the pair implies, and the reason both notes are here together:
 an output nobody checked.** The runner is now that producer. Prose beside a
 test run is not evidence that the run happened, or that it covered what the
 prose says it covered.
+
+### A round-trip check caught a semantic error it was not aimed at
+
+`translation_check` was written before the four routing defects were fixed, so
+when it was brought into the repository it still joined `measured_dwell_sec`
+from the `data/region` stream, the cross-topic table those fixes removed. It
+passed on its own 25-message fixture and failed on the full recording, on two
+events out of 78.
+
+The failure was not an assertion. Every named check passed. What failed was
+the CDR round-trip: a joined dwell of 20.199000120162964 is a float64 computed
+from a different stream, `measured_dwell_sec` is float32, and the value did not
+survive the field. A dwell the producer puts on its own event is float32
+already, because that is what their output is, so it survives unchanged.
+
+So a bit-exactness check located a value that was semantically wrong, by
+noticing it came from the wrong arithmetic. Reading the dwell off the event, as
+the router does, fixed both: 80 events instead of 78, and 40 exits each
+carrying their own dwell instead of 38 surviving by luck. The removed join
+would have altered 40 of the 80.
+
+The gate already carried a note that a synthetic `confidence` of 0.9 fails a
+bit-exact round-trip while real float32 traffic passes. This is the same
+lesson with the sign flipped: **a value's provenance shows up in its bits**,
+and a round-trip equality check over real data will tell you when a field was
+filled from the wrong place.
+
+### Exit 0 is not evidence
+
+A scene configuration was written in a shape only its own loader understood,
+`{"scenes": [...]}` where every tool in the repository expects a bare array.
+`tools/replay_to_mcap.py` read it as a single scene with no `uid`, configured
+nothing, and produced a recording with no zones, no crossing line, no
+georeference and every camera detection dropped as unattributed.
+
+It exited 0. The file was smaller and otherwise unremarkable, and the step that
+consumed it reported success. What caught it was a gate comparing two lanes
+against each other, several steps later, by which point the degraded recording
+had already been used.
+
+A tool that can be handed a configuration it does not understand should say so.
+That one now refuses a `--scene-config` that parses but yields no scenes,
+because the alternative is a silent reduction in what gets translated, and a
+silent reduction is indistinguishable from a quiet deployment. **A successful
+exit code is a claim about the run, not about the output**, and nothing in this
+repository should treat the two as the same.
 
 ## Coverage census, `spatial.owm/0.1`
 

@@ -19,8 +19,8 @@ file carries. Nothing from here is running.
 2. Import `samples/queuing-retail-sample.layout.json` from the layout menu.
 3. Press play.
 
-15,584 typed samples from a running deployment: two scenes, four cameras, two
-zones, one crossing line, 80 zone events. CDR with omgidl schemas, so any
+15,676 typed samples from a running deployment: two scenes, four cameras, two
+zones, one crossing line, 80 zone events, 92 world model entities. CDR with omgidl schemas, so any
 schema aware reader decodes it without code from this repository.
 
 ## How it fits
@@ -88,7 +88,7 @@ recorded in `idl/PROVENANCE` and `spatialdds18/_provenance.py`.
 
 Validated by replay. Two recordings totalling 52,861 real MQTT messages were
 translated and reconciled against their inputs. The sample here is the output
-of the larger one: 30,701 messages in, 15,584 typed samples out. The live path
+of the larger one: 30,701 messages in, 15,676 typed samples out. The live path
 has been run against a real broker, in runs lasting tens of seconds.
 
 Not long soaked. Nothing here tells you about memory over hours, broker
@@ -143,36 +143,57 @@ These produced the numbers above. One runner executes all of them and reports
 what happened to each, including the ones it could not run:
 
 ```
-$ python3 gates/run_all.py
+$ python3 gates/run_all.py --no-corpus
 
   PASS     bindings_roundtrip  every generated struct imports and round-trips CDR
+  PASS     translation_check   the eight translations hold, field by field, on real messages
   PASS     golden_vector       georeference against the producer's published worked example
   PASS     golden_point        georeference against the producer's live per-object output
   PASS     schema_check        embedded schemas are self-contained and every channel decodes
   PASS     layout_check        every Foxglove layout path resolves against the recording
   PASS     render_check        a headless browser renders a value for every panel path
   SKIPPED  stamp_fidelity      published timestamps are exactly the producer's timestamps
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   SKIPPED  conservation_audit  every input topic accounted for, every 1:1 mapping exact
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   SKIPPED  determinism         two replays of one input give byte-identical content
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   SKIPPED  route_regress       four past defects stay fixed
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   PASS     owm_golden_vector   one entity's whole lifecycle, field by field against the raw messages
   SKIPPED  owm_lifecycle       one entity per track lifecycle, and the lane is the slow tier
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   SKIPPED  owm_route_equiv     replay and the live bridge publish identical owm samples
-                               needs a recorded corpus (--corpus)
+                               needs a recorded corpus: restore corpora-20261003.tgz, see CORPORA.md
   PASS     readme_manifest     the README quotes this manifest exactly
 
-14 gates: 8 passed, 0 failed, 6 skipped
+15 gates: 9 passed, 0 failed, 6 skipped
 ```
 
-Eight run on the shipped sample with no deployment at all. The other six
-compare output against the input it came from, so they need a recording:
-`python3 gates/run_all.py --corpus <dir>` runs all fourteen and prints
-`14 gates: 14 passed, 0 failed, 0 skipped`.
+Nine run on the shipped sample and its bundled fixture, with no deployment at
+all. The other six need the recording itself and not just the shipped output,
+because they compare translated output against the input it came from. Restore
+the corpora beside this checkout and the runner finds them, with no flag and no
+path to remember:
+
+```
+$ python3 gates/run_all.py
+
+15 gates: 15 passed, 0 failed, 0 skipped
+```
+
+[`CORPORA.md`](CORPORA.md) says which objects to restore and where, and pins
+their digests, so a gate result can be traced to the bytes it was computed
+from. `tools/verify_corpora.py` checks a restored copy against those digests.
+`--corpus <dir>` points at a recording somewhere else, and `--no-corpus`
+ignores the one beside the checkout, which is the manifest quoted above and
+the one a clean clone prints on its own.
+
+One row in that block is environment dependent: `render_check` drives a
+headless browser, so it reports SKIPPED on a machine without Node and
+Playwright, and `readme_manifest` then correctly reports that the quoted block
+is not what your machine prints. The block above is from a machine with both
+installed. Nothing else in it depends on an optional dependency.
 
 That manifest is the verification claim rather than a sentence written beside
 one. A gate that cannot run says so by name, instead of being quietly missing
@@ -185,14 +206,17 @@ Individually:
 | gate | what it shows |
 |---|---|
 | `bindings_roundtrip` | 103 generated structs import and round trip through CDR |
+| `translation_check` | all eight translations, assertion by assertion, on real SceneScape messages: tripwires set `has_crossing`, keypoints land in the §2.15 metadata bag, `thing_type` falls back to the topic and is never invented, an ungated scale says `SCALE_UNKNOWN`. Ships a 25 message fixture so it runs on a clean clone, and takes a full recording when there is one |
 | `golden_vector` | the georeference matches SceneScape's own worked example to 0.0018 m |
 | `golden_point` | and their live per object latitude and longitude to 0.009 mm |
 | `schema_check` | every embedded schema is self contained, named correctly, compiles, and its first message decodes |
 | `layout_check` | every path in the Foxglove layout resolves against the file |
 | `render_check` | a headless browser decodes the file with Foxglove's own libraries and renders all nine panel paths |
 
-Four more need a recording rather than an MCAP, because they compare output
-against the input it came from. Make one with `tools/record_corpus.sh`, then:
+The other six need a recording rather than an MCAP, because they compare
+output against the input it came from. `gates/run_all.py` runs them for you;
+to run one on its own, make a recording with `tools/record_corpus.sh` or
+restore one per [`CORPORA.md`](CORPORA.md), then:
 
 ```sh
 PYTHONPATH=. python3 tools/replay_to_mcap.py <corpus-dir> \
@@ -203,6 +227,10 @@ PYTHONPATH=. python3 gates/determinism.py <corpus-dir> \
 PYTHONPATH=. python3 gates/route_regress.py <corpus-dir> \
     --scene-config samples/scene-config.json
 PYTHONPATH=. python3 gates/stamp_fidelity.py <corpus-dir> <corpus-dir>/replay.mcap
+PYTHONPATH=. python3 gates/owm_lifecycle.py <corpus-dir> <corpus-dir>/replay.mcap \
+    --scene-config samples/scene-config.json
+PYTHONPATH=. python3 gates/owm_route_equiv.py <corpus-dir> \
+    --scene-config samples/scene-config.json
 ```
 
 | gate | what it shows |
@@ -211,6 +239,8 @@ PYTHONPATH=. python3 gates/stamp_fidelity.py <corpus-dir> <corpus-dir>/replay.mc
 | `determinism` | two replays of the same input give byte identical content |
 | `route_regress` | four past defects stay fixed: camera to scene attribution, dwell read from the event rather than joined, per scene sequence numbers, and the exit event payload shape |
 | `stamp_fidelity` | every published `sec`/`nanosec` pair is exactly a timestamp the producer sent, compared against its own ISO strings |
+| `owm_lifecycle` | one entity per track lifecycle, each create matched to a retire, and the lane published on lifecycle change rather than per frame |
+| `owm_route_equiv` | replay and the live bridge publish byte identical entity samples, the stamp on latched definitions excepted by design |
 
 `render_check` drives Foxglove's `@mcap/core`, `@foxglove/omgidl-parser` and
 `@foxglove/omgidl-serialization` in headless Chromium. It is not the Foxglove
@@ -221,13 +251,14 @@ where the failures were.
 ## Layout
 
 ```
-sidecar/        router, mapping, bridge, MCAP writer, watcher
-FINDINGS.md     what this adapter learned, our defects included
+sidecar/        router, mapping, bridge, MCAP writer, watcher, owm
 spatialdds18/   generated bindings, with the spec commit recorded
 idl/v1.8/       the IDL they came from, and its PROVENANCE
 tools/          recording, replay, scene config, layout generation
 gates/          everything above
-samples/        the recording, its layout, screenshots, scene config
+samples/        the recording, its layout, screenshots, configs, the fixture
+FINDINGS.md     what this adapter learned, our defects included
+CORPORA.md      where the recordings live and how to prove they are right
 ```
 
 `python3 tools/generate_bindings.py` regenerates the bindings from `idl/`. It

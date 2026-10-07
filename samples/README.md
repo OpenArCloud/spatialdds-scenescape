@@ -2,8 +2,8 @@
 
 `queuing-retail-sample.mcap` is a recording from a running SceneScape
 2026.1.0 demo deployment, translated to SpatialDDS 1.8. Two scenes, four
-cameras, 15,584 samples across nine topics, including two zones, one crossing
-line and 80 zone events.
+cameras, 15,676 samples across eleven topics, including two zones, one
+crossing line, 80 zone events and 92 world model entities.
 
 `queuing-retail-sample.layout.json` is a Foxglove layout for it. Open the
 MCAP, import the layout. The layout is generated from the file by
@@ -40,3 +40,8 @@ longitude values taken live from a georeferenced deployment, with the scene
 state that produced them. `gates/golden_point.py --recorded` uses it to check
 the georeference against the producer's own output without needing a
 deployment.
+
+`translation-fixture/` is a 25 message corpus across six topics, small enough
+to read and real enough to exercise every branch of the eight translations.
+`gates/translation_check.py` runs on it, so that gate needs no recording and
+passes on a clean clone.
