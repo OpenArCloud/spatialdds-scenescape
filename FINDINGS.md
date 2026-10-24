@@ -276,3 +276,73 @@ window, none reappearing after retirement. If a producer ever did reuse an id
 after a retire, this adapter would publish a create for an entity id it had
 already disposed, and the lifecycle gate would catch it as an entity created
 twice. Untested against real reuse because none occurred.
+
+## From the native-SDK census, 2026-10-24
+
+spatialdds-web's `docs/NATIVE-SDK-CENSUS.md` inventoried this sidecar's DDS
+face beside three other codebases, then built the one library they each
+hand-roll (`spatialdds.dds`). These are what it found here, read at c26d7a2.
+They are filed, not fixed: adopting the SDK is this repository's call, with the
+census as its shopping list. Each was read at its cited line, and none was run
+on a bus.
+
+**The watcher crashes at startup.** `topics.all_for_scene` returns an
+`owm_entity` label (`topics.py:107`). `watch.py:118` looks it up in `TYPES`,
+which has no such key (`watch.py:42-50`) and never imports `Entity`, so it
+raises `KeyError`. No gate runs the watcher.
+
+**A clean stop withdraws every zone and anchor.** Writers keep DDS's default
+autodispose, and `watch.py:153-157` records the effect, "317 disposes per
+camera on shutdown". Stopping the sidecar therefore reads to every consumer as
+a deliberate removal of the site's layout. A crash does the same once the
+lease expires: measured for the same default in SpatialDDS-demo, a `kill -9`
+became `NOT_ALIVE_DISPOSED` ten seconds later. The watcher prints every
+invalid sample as "disposed / unregistered" (`watch.py:145`), so it cannot
+tell the two apart either.
+
+**A retirement is never disposed.** `owm.retire_entity` writes the RETIRED
+terminal sample with its reason (`owm.py:183-218`), and its docstring says
+"then dispose", but no `dispose()` exists anywhere in the sidecar. Under
+TRANSIENT_LOCAL + KEEP_LAST(1), retired entities accumulate and are replayed to
+every late joiner.
+
+**QoS contradicts the registry, twice over.** `detection2d` and `fused_track`
+are DET_RT in §3.3.3: best-effort, volatile, KEEP_LAST(1), with a 100 ms
+deadline. `spatial_event` is EVENT_RT, KEEP_LAST(64). The sidecar writes all
+three reliable, KEEP_LAST(16) and with no deadline (`bridge.py:55-57`). The
+watcher holds a second hand copy (`watch.py:56-61`) with a different latched
+set. A conformant DET_RT reader requests a 100 ms deadline that these writers
+do not offer, and Deadline is request/offered, so it would never match.
+
+**The pin is behind and unchecked.** `idl/PROVENANCE` pins 424a8b3
+(2026-10-03), before `GeoAnchor.manifest_uri` and `TopicMeta.durability`.
+Every other repository in the family pins 9c3e1f2 or later, and spatialdds
+0.7.0 pins the v1.8 tag. Nothing compares the vendored IDL with the spec, and
+`provisional.owm.sha256` is recorded and never read.
+
+**The entity topic moved under it.** `topics.owm_entity` publishes
+`spatialdds/<scene>/model/entity/v0` (`topics.py:79`), which is what §3.3.2
+registered at 9c3e1f2. The v1.8 stamp registers
+`spatialdds/<scene>/world/entity/v1`, the name SpatialDDS-demo, spatialdds_ros
+and the SDK use.
+
+**Two type segments with no registry row.** `geo_anchor` and `frame_transform`
+(`topics.py:54-61`) contradict the module's docstring, which says every
+`<type>` segment comes from the registry. At v1.8 neither `GeoAnchor` nor
+`FrameTransform` has a §3.3.2 row, which is the spec's completeness gap (now
+on the 1.9 queue) as much as this sidecar's.
+
+**Instances grow without bound.** `Detection2DSet.set_id` is unique per batch
+(`mapping.py:763`), so every message is a new instance that is never
+unregistered. These are the 317 disposes per camera above.
+
+**An event with no scene gets an empty segment.**
+`route.py:156-159` falls back through `scene_id`, a hint and the only
+configured scene to `""`, giving `spatialdds//events/spatial_event/v1`. An
+unknown camera is dropped instead (`route.py:129-132`). Whether real events
+ever lack `scene_id` is unverified; the fixture events carry it.
+
+**A stop signal waits for the next line.** The SIGINT/SIGTERM handler sets a
+flag (`bridge.py:133-139`) that is checked once per stdin line (`:145-147`).
+A read blocked on a quiet pipe does not see it until a line arrives or the pipe
+closes. This is inferred from PEP 475's retry and not measured.
